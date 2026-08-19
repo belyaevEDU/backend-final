@@ -53,8 +53,8 @@ def get_image_processor_payload():
 def test_create_task(auth_token):
     task_url = f"{BASE_URL}/task"
     headers = {'Authorization': f'Bearer {auth_token}'}
-    
-    response = requests.post(task_url, headers=headers, json=payload) 
+
+    response = requests.post(task_url, headers=headers)
 
     assert response.status_code == 201
     data = response.json()
