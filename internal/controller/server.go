@@ -12,7 +12,6 @@ import (
 
 type Api struct {
 	httpServer *http.Server
-	router     *chi.Mux
 	shutdown   time.Duration
 }
 
