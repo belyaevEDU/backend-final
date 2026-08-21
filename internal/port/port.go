@@ -16,3 +16,24 @@ type TaskService interface {
 	Status(id string) (domain.TaskStatus, error)
 	Result(id string) (*domain.Result, error)
 }
+
+type UserRepository interface {
+	SaveUser(user *domain.User) error
+	GetUserByID(id string) (*domain.User, error)
+	GetUserByLogin(login string) (*domain.User, error)
+}
+
+type UserService interface {
+	Register(login, password string) error
+	Login(login, password string) (string, error)
+}
+
+type SessionRepository interface {
+	CreateSession(session *domain.Session) error
+	GetSession(sessionID string) (*domain.Session, error)
+	DeleteSession(sessionID string) error
+}
+
+type AuthService interface {
+	Authenticate(token string) (string, error)
+}
