@@ -8,6 +8,10 @@ func (r *Repository) SaveUser(user *domain.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
+	if _, ok := r.users[user.Login]; ok {
+		return domain.ErrUserAlreadyExists
+	}
+
 	clone := *user
 	r.users[clone.Login] = &clone
 
