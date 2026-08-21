@@ -1,19 +1,8 @@
 package repository
 
 import (
-	"sync"
-
 	"github.com/belyaevedu/remote-code-service/internal/domain"
 )
-
-type Repository struct {
-	mu    sync.RWMutex
-	tasks map[string]*domain.Task
-}
-
-func New() *Repository {
-	return &Repository{tasks: make(map[string]*domain.Task)}
-}
 
 func (r *Repository) Save(task *domain.Task) error {
 	r.mu.Lock()
