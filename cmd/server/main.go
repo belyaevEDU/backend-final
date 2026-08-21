@@ -20,9 +20,14 @@ func main() {
 	}
 
 	repo := repository.New()
+
 	taskService := service.New(repo, cfg.ProcessingTime)
+	userService := service.NewUserService(repo, repo)
+
 	taskHandler := handlers.New(taskService)
-	router := controller.NewRouter(taskHandler)
+	userHandler := handlers.NewUserHandlers(userService)
+
+	router := controller.NewRouter(taskHandler, userHandler, userService)
 	server := controller.NewApi(cfg.HTTPAddr, router, cfg.ShutdownTimeout)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT)
