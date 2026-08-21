@@ -1,8 +1,6 @@
 package port
 
 import (
-	"context"
-
 	"github.com/belyaevedu/remote-code-service/internal/domain"
 )
 
@@ -14,7 +12,7 @@ type TaskRepository interface {
 }
 
 type TaskService interface {
-	Submit(ctx context.Context) (string, error)
-	Status(ctx context.Context, id string) (domain.TaskStatus, error)
-	Result(ctx context.Context, id string) (*domain.Result, error)
+	Submit() (string, error)
+	Status(id string) (domain.TaskStatus, error)
+	Result(id string) (*domain.Result, error)
 }

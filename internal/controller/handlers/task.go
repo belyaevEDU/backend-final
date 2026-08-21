@@ -20,72 +20,70 @@ func New(taskSvc port.TaskService) *TaskHandlers {
 	return &TaskHandlers{taskSvc: taskSvc}
 }
 
-// body returned by POST /task
+// POST /task
 type taskCreateResponse struct {
 	TaskID string `json:"task_id"`
 }
 
-// body returned by GET /status/{task_id}
+// GET /status/{task_id}
 type taskStatusResponse struct {
 	Status string `json:"status"`
 }
 
-// body returned by GET /result/{task_id}
+// GET /result/{task_id}
 type taskResultResponse struct {
 	Result domain.Result `json:"result"`
 }
-
-type errorResponse struct {
+type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// POST /task
+// POST /task.
 func (h *TaskHandlers) Create(w http.ResponseWriter, r *http.Request) {
-	id, err := h.taskSvc.Submit(r.Context())
+	id, err := h.taskSvc.Submit()
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, errorResponse{Error: err.Error()})
+		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
-	writeJSON(w, http.StatusCreated, taskCreateResponse{TaskID: id})
+	WriteJSON(w, http.StatusCreated, taskCreateResponse{TaskID: id})
 }
 
-// GET /status/{task_id}
+// GET /status/{task_id}.
 func (h *TaskHandlers) Status(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "task_id")
 
-	status, err := h.taskSvc.Status(r.Context(), id)
+	status, err := h.taskSvc.Status(id)
 	if err != nil {
 		if errors.Is(err, domain.ErrTaskNotFound) {
-			writeJSON(w, http.StatusNotFound, errorResponse{Error: domain.ErrTaskNotFound.Error()})
+			WriteJSON(w, http.StatusNotFound, ErrorResponse{Error: domain.ErrTaskNotFound.Error()})
 			return
 		}
-		writeJSON(w, http.StatusInternalServerError, errorResponse{Error: err.Error()})
+		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, taskStatusResponse{Status: string(status)})
+	WriteJSON(w, http.StatusOK, taskStatusResponse{Status: string(status)})
 }
 
-// GET /result/{task_id}
+// GET /result/{task_id}.
 func (h *TaskHandlers) Result(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "task_id")
 
-	result, err := h.taskSvc.Result(r.Context(), id)
+	result, err := h.taskSvc.Result(id)
 	if err != nil {
 		if errors.Is(err, domain.ErrTaskNotFound) {
-			writeJSON(w, http.StatusNotFound, errorResponse{Error: domain.ErrTaskNotFound.Error()})
+			WriteJSON(w, http.StatusNotFound, ErrorResponse{Error: domain.ErrTaskNotFound.Error()})
 			return
 		}
-		writeJSON(w, http.StatusInternalServerError, errorResponse{Error: err.Error()})
+		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, taskResultResponse{Result: *result})
+	WriteJSON(w, http.StatusOK, taskResultResponse{Result: *result})
 }
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
+func WriteJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	err := json.NewEncoder(w).Encode(v)
-	if err != nil {
+	if err := json.NewEncoder(w).Encode(v); err != nil {
 		log.Printf("Error raised encoding a response into JSON: %v\n", err)
 	}
 }

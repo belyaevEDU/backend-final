@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"log"
 	"time"
 
@@ -34,7 +33,7 @@ func New(repo port.TaskRepository, processingTime time.Duration) *TaskService {
 	}
 }
 
-func (s *TaskService) Submit(ctx context.Context) (string, error) {
+func (s *TaskService) Submit() (string, error) {
 	id := uuid.NewString()
 
 	task := &domain.Task{
@@ -51,7 +50,7 @@ func (s *TaskService) Submit(ctx context.Context) (string, error) {
 	return id, nil
 }
 
-func (s *TaskService) Status(ctx context.Context, id string) (domain.TaskStatus, error) {
+func (s *TaskService) Status(id string) (domain.TaskStatus, error) {
 	t, err := s.repo.Get(id)
 	if err != nil {
 		return "", err
@@ -59,7 +58,7 @@ func (s *TaskService) Status(ctx context.Context, id string) (domain.TaskStatus,
 	return t.Status, nil
 }
 
-func (s *TaskService) Result(ctx context.Context, id string) (*domain.Result, error) {
+func (s *TaskService) Result(id string) (*domain.Result, error) {
 	t, err := s.repo.Get(id)
 	if err != nil {
 		return nil, err
