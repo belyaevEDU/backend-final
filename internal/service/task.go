@@ -23,7 +23,7 @@ type TaskService struct {
 // implements port's TaskService interface
 var _ port.TaskService = (*TaskService)(nil)
 
-func New(repo port.TaskRepository, processingTime time.Duration) *TaskService {
+func NewTaskService(repo port.TaskRepository, processingTime time.Duration) *TaskService {
 	if processingTime <= 0 {
 		processingTime = 2 * time.Second
 	}

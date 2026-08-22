@@ -36,10 +36,10 @@ func main() {
 
 	repo := repository.New()
 
-	taskService := service.New(repo, cfg.ProcessingTime)
+	taskService := service.NewTaskService(repo, cfg.ProcessingTime)
 	userService := service.NewUserService(repo, repo)
 
-	taskHandler := handlers.New(taskService)
+	taskHandler := handlers.NewTaskHandlers(taskService)
 	userHandler := handlers.NewUserHandlers(userService)
 
 	router := controller.NewRouter(taskHandler, userHandler, userService)

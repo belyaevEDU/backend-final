@@ -16,7 +16,7 @@ type TaskHandlers struct {
 	taskSvc port.TaskService
 }
 
-func New(taskSvc port.TaskService) *TaskHandlers {
+func NewTaskHandlers(taskSvc port.TaskService) *TaskHandlers {
 	return &TaskHandlers{taskSvc: taskSvc}
 }
 
