@@ -13,6 +13,21 @@ import (
 	"github.com/belyaevedu/remote-code-service/internal/service"
 )
 
+// @title HTTP REST API for a safe remote code execution service
+// @version 1.0
+// @description The foundation for a safe remote code execution service
+//
+// @contact.name Veniamin Belyaev
+// @contact.email veniamin@belyaev.work
+// @license.name MIT
+//
+// @BasePath /
+//
+// @accept json
+// @produce json
+// @schemes http
+//
+// @securitydefinitions.bearerauth BearerAuth
 func main() {
 	cfg, err := config.Load()
 	if err != nil {

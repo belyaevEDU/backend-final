@@ -15,22 +15,6 @@ type Api struct {
 	shutdown   time.Duration
 }
 
-// @title HTTP REST API for a safe remote code execution service
-// @version 1.0
-// @description The foundation for a safe remote code execution service
-
-// contact.email veniamin@belyaev.work
-// license.name MIT
-
-// @host HTTP_ADDR environment variable, default = localhost:8000
-// @BasePath /
-
-// @accept json
-// @produce json
-// @schemes http
-
-// @securitydefinitions.bearerauth BearerAuth
-
 func NewApi(address string, router *chi.Mux, shutdownTimeout time.Duration) *Api {
 	if shutdownTimeout <= 0 {
 		shutdownTimeout = 10 * time.Second
