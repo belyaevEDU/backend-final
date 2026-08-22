@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/belyaevedu/remote-code-service/internal/domain"
@@ -47,6 +48,7 @@ func (h *UserHandlers) Register(w http.ResponseWriter, r *http.Request) {
 			WriteJSON(w, http.StatusConflict, ErrorResponse{Error: err.Error()})
 			return
 		}
+		log.Printf("error raised in userhandlers' register: %v\n", err)
 		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -67,6 +69,7 @@ func (h *UserHandlers) Login(w http.ResponseWriter, r *http.Request) {
 			WriteJSON(w, http.StatusUnauthorized, ErrorResponse{Error: err.Error()})
 			return
 		}
+		log.Printf("error raised in userhandlers' login: %v\n", err)
 		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
