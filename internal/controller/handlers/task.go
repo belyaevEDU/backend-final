@@ -40,7 +40,7 @@ type taskResultResponse struct {
 // @Tags task
 // @Accept json
 // @Produce json
-// @Success 200 {object} taskCreateResponse
+// @Success 201 {object} taskCreateResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 401 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
@@ -60,7 +60,7 @@ func (h *TaskHandlers) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags task
 // @Accept json
 // @Produce json
-// @Param task_id path int true "task id"
+// @Param task_id path string true "task id"
 // @Success 200 {object} taskStatusResponse
 // @Failure 401 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
@@ -87,7 +87,7 @@ func (h *TaskHandlers) Status(w http.ResponseWriter, r *http.Request) {
 // @Tags task
 // @Accept json
 // @Produce json
-// @Param task_id path int true "task id"
+// @Param task_id path string true "task id"
 // @Success 200 {object} taskResultResponse
 // @Failure 401 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
