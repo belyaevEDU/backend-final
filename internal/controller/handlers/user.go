@@ -24,10 +24,12 @@ type authRequest struct {
 	Password string `json:"password"`
 }
 
+// response body for /register
 type registerResponse struct {
 	Message string `json:"message"`
 }
 
+// response body for /login
 type loginResponse struct {
 	Token string `json:"token"`
 }
