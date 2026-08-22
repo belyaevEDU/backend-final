@@ -32,7 +32,16 @@ type loginResponse struct {
 	Token string `json:"token"`
 }
 
-// POST /register
+// @Summary Register a user
+// @Description Registering a user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} registerResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 409 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /register [post]
 func (h *UserHandlers) Register(w http.ResponseWriter, r *http.Request) {
 	req, ok := decodeAuth(w, r)
 	if !ok {
@@ -56,7 +65,16 @@ func (h *UserHandlers) Register(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(w, http.StatusCreated, registerResponse{Message: "user registered"})
 }
 
-// POST /login
+// @Summary Login as a user
+// @Description Logging in as a user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} loginResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /login [post]
 func (h *UserHandlers) Login(w http.ResponseWriter, r *http.Request) {
 	req, ok := decodeAuth(w, r)
 	if !ok {
