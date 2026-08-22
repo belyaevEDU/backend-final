@@ -34,9 +34,6 @@ type taskStatusResponse struct {
 type taskResultResponse struct {
 	Result domain.Result `json:"result"`
 }
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
 
 // POST /task.
 func (h *TaskHandlers) Create(w http.ResponseWriter, r *http.Request) {
