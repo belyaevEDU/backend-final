@@ -43,8 +43,9 @@ type loginResponse struct {
 // @Failure 500 {object} ErrorResponse
 // @Router /register [post]
 func (h *UserHandlers) Register(w http.ResponseWriter, r *http.Request) {
-	req, ok := decodeAuth(w, r)
-	if !ok {
+	req, err := decodeAuth(r)
+	if err != nil {
+		WriteJSON(w, http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -76,8 +77,9 @@ func (h *UserHandlers) Register(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} ErrorResponse
 // @Router /login [post]
 func (h *UserHandlers) Login(w http.ResponseWriter, r *http.Request) {
-	req, ok := decodeAuth(w, r)
-	if !ok {
+	req, err := decodeAuth(r)
+	if err != nil {
+		WriteJSON(w, http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -95,15 +97,13 @@ func (h *UserHandlers) Login(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(w, http.StatusOK, loginResponse{Token: token})
 }
 
-func decodeAuth(w http.ResponseWriter, r *http.Request) (*authRequest, bool) {
+func decodeAuth(r *http.Request) (*authRequest, error) {
 	var req authRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		WriteJSON(w, http.StatusBadRequest, ErrorResponse{Error: "invalid json body"})
-		return nil, false
+		return nil, errors.New("invalid json body")
 	}
 	if req.Username == "" || req.Password == "" {
-		WriteJSON(w, http.StatusBadRequest, ErrorResponse{Error: "username and password are required"})
-		return nil, false
+		return nil, errors.New("username and password are required")
 	}
-	return &req, true
+	return &req, nil
 }
