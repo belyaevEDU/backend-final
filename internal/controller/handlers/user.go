@@ -39,7 +39,8 @@ type loginResponse struct {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} registerResponse
+// @Param request body authRequest true "registration credentials"
+// @Success 201 {object} registerResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 409 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
@@ -73,6 +74,7 @@ func (h *UserHandlers) Register(w http.ResponseWriter, r *http.Request) {
 // @Tags auth
 // @Accept json
 // @Produce json
+// @Param request body authRequest true "login credentials"
 // @Success 200 {object} loginResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 401 {object} ErrorResponse
