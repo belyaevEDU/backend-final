@@ -35,7 +35,17 @@ type taskResultResponse struct {
 	Result domain.Result `json:"result"`
 }
 
-// POST /task.
+// @Summary Create a task
+// @Description Creating a task
+// @Tags task
+// @Accept json
+// @Produce json
+// @Success 200 {object} taskCreateResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /task [post]
 func (h *TaskHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	id, err := h.taskSvc.Submit()
 	if err != nil {
@@ -45,7 +55,18 @@ func (h *TaskHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(w, http.StatusCreated, taskCreateResponse{TaskID: id})
 }
 
-// GET /status/{task_id}.
+// @Summary Get the status of a certain task
+// @Description Getting the status of a task by id
+// @Tags task
+// @Accept json
+// @Produce json
+// @Param task_id path int true "task id"
+// @Success 200 {object} taskStatusResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /status/{task_id} [get]
 func (h *TaskHandlers) Status(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "task_id")
 
@@ -61,7 +82,18 @@ func (h *TaskHandlers) Status(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(w, http.StatusOK, taskStatusResponse{Status: string(status)})
 }
 
-// GET /result/{task_id}.
+// @Summary Get the result of a certain task
+// @Description Getting the result of a task by id
+// @Tags task
+// @Accept json
+// @Produce json
+// @Param task_id path int true "task id"
+// @Success 200 {object} taskResultResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /result/{task_id} [get]
 func (h *TaskHandlers) Result(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "task_id")
 
