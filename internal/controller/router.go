@@ -14,7 +14,7 @@ func NewRouter(t *handlers.TaskHandlers, u *handlers.UserHandlers, auth port.Aut
 	r.Post("/login", u.Login)
 
 	r.Group(func(r chi.Router) {
-		r.Use(AuthMiddleware(auth))
+		r.Use(handlers.AuthMiddleware(auth))
 		r.Post("/task", t.Create)
 		r.Get("/status/{task_id}", t.Status)
 		r.Get("/result/{task_id}", t.Result)

@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/belyaevedu/remote-code-service/internal/domain"
@@ -107,12 +105,4 @@ func (h *TaskHandlers) Result(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	WriteJSON(w, http.StatusOK, taskResultResponse{Result: *result})
-}
-
-func WriteJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		log.Printf("Error raised encoding a response into JSON: %v\n", err)
-	}
 }

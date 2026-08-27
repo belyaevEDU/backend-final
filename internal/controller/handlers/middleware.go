@@ -1,18 +1,19 @@
-package controller
+package handlers
 
 import (
 	"context"
 	"net/http"
 	"strings"
 
-	"github.com/belyaevedu/remote-code-service/internal/controller/handlers"
 	"github.com/belyaevedu/remote-code-service/internal/port"
 )
+
+type contextKey string
 
 const (
 	bearerScheme = "Bearer "
 	// context key for the authenticated user id, stored for downstream handlers
-	UserIDKey = "user_id"
+	UserIDKey contextKey = "user_id"
 )
 
 func AuthMiddleware(auth port.AuthService) func(http.Handler) http.Handler {
@@ -48,5 +49,5 @@ func AuthMiddleware(auth port.AuthService) func(http.Handler) http.Handler {
 }
 
 func unauthorizedResponseHelper(w http.ResponseWriter, msg string) {
-	handlers.WriteJSON(w, http.StatusUnauthorized, handlers.ErrorResponse{Error: msg})
+	WriteJSON(w, http.StatusUnauthorized, ErrorResponse{Error: msg})
 }
