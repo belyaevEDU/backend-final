@@ -45,7 +45,7 @@ func main() {
 	router := controller.NewRouter(taskHandler, userHandler, userService)
 	server := controller.NewApi(cfg.HTTPAddr, router, cfg.ShutdownTimeout)
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	if err := server.Start(ctx); err != nil {
