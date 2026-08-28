@@ -12,9 +12,9 @@ type TaskRepository interface {
 }
 
 type TaskService interface {
-	Submit() (string, error)
-	Status(id string) (domain.TaskStatus, error)
-	Result(id string) (*domain.Result, error)
+	Submit(userID string) (string, error)
+	Status(userID, id string) (domain.TaskStatus, error)
+	Result(userID, id string) (*domain.Result, error)
 }
 
 type UserRepository interface {
