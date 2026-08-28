@@ -6,6 +6,7 @@ import (
 
 var (
 	ErrTaskNotFound = errors.New("task not found")
+	ErrAccessDenied = errors.New("access denied")
 )
 
 type TaskStatus string
@@ -21,6 +22,7 @@ type Result struct {
 
 type Task struct {
 	ID     string
+	UserID string
 	Status TaskStatus
 	Result *Result
 }
