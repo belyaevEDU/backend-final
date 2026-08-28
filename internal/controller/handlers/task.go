@@ -10,6 +10,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+const (
+	messageMissingAuthedUser = "missing authenticated user"
+)
+
 type TaskHandlers struct {
 	taskSvc port.TaskService
 }
@@ -34,7 +38,7 @@ type taskResultResponse struct {
 }
 
 // @Summary Create a task
-// @Description Creating a task
+// @Description Creating a task owned by an authenticated user
 // @Tags task
 // @Accept json
 // @Produce json
@@ -45,7 +49,13 @@ type taskResultResponse struct {
 // @Security BearerAuth
 // @Router /task [post]
 func (h *TaskHandlers) Create(w http.ResponseWriter, r *http.Request) {
-	id, err := h.taskSvc.Submit()
+	userID, ok := userIDFromContext(r)
+	if !ok {
+		unauthorizedResponseHelper(w, messageMissingAuthedUser)
+		return
+	}
+
+	id, err := h.taskSvc.Submit(userID)
 	if err != nil {
 		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
@@ -54,7 +64,7 @@ func (h *TaskHandlers) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary Get the status of a certain task
-// @Description Getting the status of a task by id
+// @Description Getting the status of a task by id. Only the owner of the task can access it
 // @Tags task
 // @Accept json
 // @Produce json
@@ -66,22 +76,24 @@ func (h *TaskHandlers) Create(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Router /status/{task_id} [get]
 func (h *TaskHandlers) Status(w http.ResponseWriter, r *http.Request) {
+	userID, ok := userIDFromContext(r)
+	if !ok {
+		unauthorizedResponseHelper(w, messageMissingAuthedUser)
+		return
+	}
+
 	id := chi.URLParam(r, "task_id")
 
-	status, err := h.taskSvc.Status(id)
+	status, err := h.taskSvc.Status(userID, id)
 	if err != nil {
-		if errors.Is(err, domain.ErrTaskNotFound) {
-			WriteJSON(w, http.StatusNotFound, ErrorResponse{Error: domain.ErrTaskNotFound.Error()})
-			return
-		}
-		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+		writeTaskError(w, err)
 		return
 	}
 	WriteJSON(w, http.StatusOK, taskStatusResponse{Status: string(status)})
 }
 
 // @Summary Get the result of a certain task
-// @Description Getting the result of a task by id
+// @Description Getting the result of a task by id. Only the owner of the task can access it
 // @Tags task
 // @Accept json
 // @Produce json
@@ -93,16 +105,32 @@ func (h *TaskHandlers) Status(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Router /result/{task_id} [get]
 func (h *TaskHandlers) Result(w http.ResponseWriter, r *http.Request) {
+	userID, ok := userIDFromContext(r)
+	if !ok {
+		unauthorizedResponseHelper(w, messageMissingAuthedUser)
+		return
+	}
+
 	id := chi.URLParam(r, "task_id")
 
-	result, err := h.taskSvc.Result(id)
+	result, err := h.taskSvc.Result(userID, id)
 	if err != nil {
-		if errors.Is(err, domain.ErrTaskNotFound) {
-			WriteJSON(w, http.StatusNotFound, ErrorResponse{Error: domain.ErrTaskNotFound.Error()})
-			return
-		}
-		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+		writeTaskError(w, err)
 		return
 	}
 	WriteJSON(w, http.StatusOK, taskResultResponse{Result: *result})
+}
+
+func userIDFromContext(r *http.Request) (string, bool) {
+	id, ok := r.Context().Value(UserIDKey).(string)
+	return id, ok && id != ""
+}
+
+// both unknown tasks and tasks owned by another user are reported as 404 with the same body
+func writeTaskError(w http.ResponseWriter, err error) {
+	if errors.Is(err, domain.ErrTaskNotFound) || errors.Is(err, domain.ErrAccessDenied) {
+		WriteJSON(w, http.StatusNotFound, ErrorResponse{Error: domain.ErrTaskNotFound.Error()})
+		return
+	}
+	WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 }
