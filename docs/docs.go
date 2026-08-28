@@ -244,7 +244,7 @@ const docTemplate = `{
         },
         "/result/{task_id}": {
             "get": {
-                "description": "Getting the result of a task by id",
+                "description": "Getting the result of a task by id. Only the owner of the task can access it",
                 "parameters": [
                     {
                         "description": "task id",
@@ -320,7 +320,7 @@ const docTemplate = `{
         },
         "/status/{task_id}": {
             "get": {
-                "description": "Getting the status of a task by id",
+                "description": "Getting the status of a task by id. Only the owner of the task can access it",
                 "parameters": [
                     {
                         "description": "task id",
@@ -396,7 +396,7 @@ const docTemplate = `{
         },
         "/task": {
             "post": {
-                "description": "Creating a task",
+                "description": "Creating a task owned by an authenticated user",
                 "requestBody": {
                     "content": {
                         "application/json": {
