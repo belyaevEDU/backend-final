@@ -33,11 +33,16 @@ func NewTaskService(repo port.TaskRepository, processingTime time.Duration) *Tas
 	}
 }
 
-func (s *TaskService) Submit() (string, error) {
+func (s *TaskService) Submit(userID string) (string, error) {
+	if userID == "" {
+		return "", domain.ErrAccessDenied
+	}
+
 	id := uuid.NewString()
 
 	task := &domain.Task{
 		ID:     id,
+		UserID: userID,
 		Status: domain.StatusInProgress,
 	}
 
@@ -50,16 +55,16 @@ func (s *TaskService) Submit() (string, error) {
 	return id, nil
 }
 
-func (s *TaskService) Status(id string) (domain.TaskStatus, error) {
-	t, err := s.repo.Get(id)
+func (s *TaskService) Status(userID, id string) (domain.TaskStatus, error) {
+	t, err := s.getOwnedTask(userID, id)
 	if err != nil {
 		return "", err
 	}
 	return t.Status, nil
 }
 
-func (s *TaskService) Result(id string) (*domain.Result, error) {
-	t, err := s.repo.Get(id)
+func (s *TaskService) Result(userID, id string) (*domain.Result, error) {
+	t, err := s.getOwnedTask(userID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +72,25 @@ func (s *TaskService) Result(id string) (*domain.Result, error) {
 		return nil, domain.ErrTaskNotFound
 	}
 	return t.Result, nil
+}
+
+// fetches the task by id and verifies it belongs to a set user
+// task owned by someone else results in ErrAccessDenied
+func (s *TaskService) getOwnedTask(userID, id string) (*domain.Task, error) {
+	if userID == "" {
+		return nil, domain.ErrAccessDenied
+	}
+
+	t, err := s.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if t.UserID != userID {
+		return nil, domain.ErrAccessDenied
+	}
+
+	return t, nil
 }
 
 func (s *TaskService) process(id string) {
