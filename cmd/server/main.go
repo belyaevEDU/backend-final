@@ -9,7 +9,7 @@ import (
 	"github.com/belyaevedu/remote-code-service/internal/config"
 	"github.com/belyaevedu/remote-code-service/internal/controller"
 	"github.com/belyaevedu/remote-code-service/internal/controller/handlers"
-	"github.com/belyaevedu/remote-code-service/internal/repository"
+	"github.com/belyaevedu/remote-code-service/internal/repository/storage"
 	"github.com/belyaevedu/remote-code-service/internal/service"
 )
 
@@ -34,7 +34,7 @@ func main() {
 		log.Fatalf("invalid config: %v", err)
 	}
 
-	repo := repository.New()
+	repo := storage.New()
 
 	taskService := service.NewTaskService(repo, cfg.ProcessingTime)
 	userService := service.NewUserService(repo, repo)
