@@ -1,4 +1,4 @@
-package repository
+package storage
 
 import (
 	"github.com/belyaevedu/remote-code-service/internal/domain"
