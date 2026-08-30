@@ -29,21 +29,21 @@ import (
 //
 // @securitydefinitions.bearerauth BearerAuth
 func main() {
-	cfg, err := config.Load()
+	cfg, err := config.LoadAppConfig()
 	if err != nil {
 		log.Fatalf("invalid config: %v", err)
 	}
 
 	repo := storage.New()
 
-	taskService := service.NewTaskService(repo, cfg.App.ProcessingTime)
+	taskService := service.NewTaskService(repo, cfg.ProcessingTime)
 	userService := service.NewUserService(repo, repo)
 
 	taskHandler := handlers.NewTaskHandlers(taskService)
 	userHandler := handlers.NewUserHandlers(userService)
 
 	router := controller.NewRouter(taskHandler, userHandler, userService)
-	server := controller.NewApi(cfg.App.HTTPAddr, router, cfg.App.ShutdownTimeout)
+	server := controller.NewApi(cfg.HTTPAddr, router, cfg.ShutdownTimeout)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
