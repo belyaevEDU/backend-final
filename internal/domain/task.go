@@ -5,8 +5,10 @@ import (
 )
 
 var (
-	ErrTaskNotFound = errors.New("task not found")
-	ErrAccessDenied = errors.New("access denied")
+	ErrTaskNotFound          = errors.New("task not found")
+	ErrAccessDenied          = errors.New("access denied")
+	ErrUnsupportedTranslator = errors.New("unsupported translator")
+	ErrExecutionTimeout      = errors.New("execution timed out")
 )
 
 type TaskStatus string
@@ -25,4 +27,16 @@ type Task struct {
 	UserID string
 	Status TaskStatus
 	Result *Result
+}
+
+type ExecutionRequest struct {
+	Name       string // the executor-side task name, expected to be unique
+	Translator string
+	Code       string
+}
+
+type ExecutionResult struct {
+	Output   string
+	ExitCode int // -1 when unavailable
+	Failed   bool
 }
