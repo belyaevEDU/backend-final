@@ -36,14 +36,14 @@ func main() {
 
 	repo := storage.New()
 
-	taskService := service.NewTaskService(repo, cfg.ProcessingTime)
+	taskService := service.NewTaskService(repo, cfg.App.ProcessingTime)
 	userService := service.NewUserService(repo, repo)
 
 	taskHandler := handlers.NewTaskHandlers(taskService)
 	userHandler := handlers.NewUserHandlers(userService)
 
 	router := controller.NewRouter(taskHandler, userHandler, userService)
-	server := controller.NewApi(cfg.HTTPAddr, router, cfg.ShutdownTimeout)
+	server := controller.NewApi(cfg.App.HTTPAddr, router, cfg.App.ShutdownTimeout)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
