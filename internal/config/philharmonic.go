@@ -45,7 +45,7 @@ type PhilharmonicConfig struct {
 }
 
 // called by Load
-func loadPhilharmonicConfig() (PhilharmonicConfig, error) {
+func LoadPhilharmonicConfig() (PhilharmonicConfig, error) {
 	phrmCfg := PhilharmonicConfig{
 		BaseURL:      envString(envVarPhilURL, defaultPhilURL),
 		Token:        envString(envVarPhilToken, ""),

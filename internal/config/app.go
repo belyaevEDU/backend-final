@@ -23,7 +23,7 @@ const (
 	defaultAppShutdownTimeout = 10 * time.Second
 )
 
-func loadAppConfig() (AppConfig, error) {
+func LoadAppConfig() (AppConfig, error) {
 	appCfg := AppConfig{
 		HTTPAddr:        envString(envVarAppAddress, defaultAppAddress),
 		ProcessingTime:  envDuration(envVarAppProcessingTime, defaultAppProcessingTime),
