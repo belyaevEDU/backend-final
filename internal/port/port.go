@@ -1,6 +1,8 @@
 package port
 
 import (
+	"context"
+
 	"github.com/belyaevedu/remote-code-service/internal/domain"
 )
 
@@ -36,4 +38,8 @@ type SessionRepository interface {
 
 type AuthService interface {
 	Authenticate(token string) (string, error)
+}
+
+type CodeExecutor interface {
+	Execute(ctx context.Context, req domain.ExecutionRequest) (domain.ExecutionResult, error)
 }
