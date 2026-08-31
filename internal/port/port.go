@@ -43,3 +43,15 @@ type AuthService interface {
 type CodeExecutor interface {
 	Execute(ctx context.Context, req domain.ExecutionRequest) (domain.ExecutionResult, error)
 }
+
+type TaskPublisher interface {
+	Publish(ctx context.Context, msg domain.TaskMessage) error
+}
+
+// processes a single task message consumed from the queue
+// returning an error requeues the message once. a message that already failed once is dropped
+type TaskHandler func(ctx context.Context, msg domain.TaskMessage) error
+
+type TaskConsumer interface {
+	Consume(ctx context.Context, handler TaskHandler) error
+}
