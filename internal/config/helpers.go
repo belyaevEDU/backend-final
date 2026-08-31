@@ -34,6 +34,15 @@ func envFloat(key string, def float64) float64 {
 	return def
 }
 
+func envInt(key string, def int) int {
+	if v, ok := os.LookupEnv(key); ok {
+		if i, err := strconv.Atoi(strings.TrimSpace(v)); err == nil {
+			return i
+		}
+	}
+	return def
+}
+
 func envInt64(key string, def int64) int64 {
 	if v, ok := os.LookupEnv(key); ok {
 		if i, err := strconv.ParseInt(strings.TrimSpace(v), 10, 64); err == nil {
