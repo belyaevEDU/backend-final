@@ -29,6 +29,12 @@ type Task struct {
 	Result *Result
 }
 
+type TaskMessage struct {
+	TaskID     string `json:"task_id"`
+	Translator string `json:"translator"`
+	Code       string `json:"code"`
+}
+
 type ExecutionRequest struct {
 	Name       string // the executor-side task name, expected to be unique
 	Translator string
