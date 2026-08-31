@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/rabbitmq/amqp091-go v1.14.0
 	github.com/swaggo/swag/v2 v2.0.0-rc5
 	golang.org/x/crypto v0.55.0
 )
