@@ -62,32 +62,35 @@ func NewPhilharmonicExecutor(cfg config.PhilharmonicConfig) *PhilharmonicExecuto
 	return &PhilharmonicExecutor{cfg: cfg, client: cfg.HTTPClient}
 }
 
-func (e *PhilharmonicExecutor) Execute(ctx context.Context, req domain.ExecutionRequest) (domain.ExecutionResult, error) {
-	if _, ok := supportedTranslators[req.Translator]; !ok {
-		return domain.ExecutionResult{}, fmt.Errorf("%w: %q", domain.ErrUnsupportedTranslator, req.Translator)
+func (e *PhilharmonicExecutor) Execute(ctx context.Context, msg domain.TaskMessage) (domain.ExecutionResult, error) {
+	if _, ok := supportedTranslators[msg.Translator]; !ok {
+		return domain.ExecutionResult{}, fmt.Errorf("%w: %q", domain.ErrUnsupportedTranslator, msg.Translator)
 	}
-	if req.Name == "" {
-		return domain.ExecutionResult{}, fmt.Errorf("execution name must not be empty")
+	if msg.TaskID == "" {
+		return domain.ExecutionResult{}, fmt.Errorf("task message without an id")
 	}
 
-	if err := e.submit(ctx, req); err != nil {
+	// unique per orchestrator and traceable back to our task id
+	name := "run-" + msg.TaskID
+
+	if err := e.submit(ctx, name, msg); err != nil {
 		return domain.ExecutionResult{}, fmt.Errorf("philharmonic submit: %w", err)
 	}
 
-	entry, err := e.awaitTerminal(ctx, req.Name)
+	entry, err := e.awaitTerminal(ctx, name)
 	if err != nil {
-		e.stopQuietly(req.Name)
+		e.stopAndLog(name)
 		return domain.ExecutionResult{}, err
 	}
 
-	output, exitCode, err := e.logs(ctx, req.Name)
+	output, exitCode, err := e.logs(ctx, name)
 	if err != nil {
-		e.stopQuietly(req.Name)
+		e.stopAndLog(name)
 		return domain.ExecutionResult{}, fmt.Errorf("philharmonic logs: %w", err)
 	}
 
 	// a 2nd stop OR a stop on a task in a terminal state removes the record from the manager
-	e.stopQuietly(req.Name)
+	e.stopAndLog(name)
 
 	result := domain.ExecutionResult{
 		Output:   output,
@@ -241,7 +244,7 @@ func (e *PhilharmonicExecutor) logs(ctx context.Context, name string) (string, i
 	return string(body), exitCode, nil
 }
 
-func (e *PhilharmonicExecutor) stopQuietly(name string) {
+func (e *PhilharmonicExecutor) stopAndLog(name string) {
 	if err := e.stop(name); err != nil {
 		log.Printf("philharmonic: cleanup of task %q failed: %v", name, err)
 	}

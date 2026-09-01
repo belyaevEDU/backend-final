@@ -35,12 +35,6 @@ type TaskMessage struct {
 	Code       string `json:"code"`
 }
 
-type ExecutionRequest struct {
-	Name       string // the executor-side task name, expected to be unique
-	Translator string
-	Code       string
-}
-
 type ExecutionResult struct {
 	Output   string
 	ExitCode int // -1 when unavailable

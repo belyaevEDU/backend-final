@@ -14,7 +14,7 @@ type TaskRepository interface {
 }
 
 type TaskService interface {
-	Submit(userID string) (string, error)
+	Submit(ctx context.Context, userID string, sub domain.Submission) (string, error)
 	Status(userID, id string) (domain.TaskStatus, error)
 	Result(userID, id string) (*domain.Result, error)
 }
@@ -41,7 +41,7 @@ type AuthService interface {
 }
 
 type CodeExecutor interface {
-	Execute(ctx context.Context, req domain.ExecutionRequest) (domain.ExecutionResult, error)
+	Execute(ctx context.Context, msg domain.TaskMessage) (domain.ExecutionResult, error)
 }
 
 type TaskPublisher interface {
