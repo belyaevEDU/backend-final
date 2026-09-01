@@ -122,14 +122,14 @@ type submitEvent struct {
 	Task submitTask `json:"Task"`
 }
 
-func (e *PhilharmonicExecutor) submit(ctx context.Context, req domain.ExecutionRequest) error {
+func (e *PhilharmonicExecutor) submit(ctx context.Context, name string, msg domain.TaskMessage) error {
 	body, err := json.Marshal(submitEvent{
 		Task: submitTask{
-			Name:  req.Name,
+			Name:  name,
 			Image: e.cfg.SandboxImage,
 			Env: []string{
-				"TRANSLATOR=" + req.Translator,
-				"USER_CODE_B64=" + base64.StdEncoding.EncodeToString([]byte(req.Code)),
+				"TRANSLATOR=" + msg.Translator,
+				"USER_CODE_B64=" + base64.StdEncoding.EncodeToString([]byte(msg.Code)),
 			},
 			RestartPolicy: "no",
 
@@ -345,4 +345,60 @@ func unexpectedStatus(resp *http.Response) error {
 		return fmt.Errorf("unexpected status %d (body unreadable: %w)", resp.StatusCode, err)
 	}
 	return statusError(resp.StatusCode, body)
+}
+
+// wire shapes of philharmonic manager's POST /images endpoint
+type pullImagesRequest struct {
+	Image string `json:"image"`
+}
+
+type pullImagesReport struct {
+	Image   string            `json:"image"`
+	Results []pullImageResult `json:"results"`
+}
+
+type pullImageResult struct {
+	Worker string `json:"worker"`
+	OK     bool   `json:"ok"`
+	Pulled bool   `json:"pulled"`
+	Error  string `json:"error"`
+}
+
+// asks manager to pull the sandbox image on all workers
+func (e *PhilharmonicExecutor) PreWarm(ctx context.Context) error {
+	body, err := json.Marshal(pullImagesRequest{Image: e.cfg.SandboxImage})
+	if err != nil {
+		return err
+	}
+
+	resp, err := e.sendRequest(ctx, http.MethodPost, "/images", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("error raised closing resp body: %v\n", err)
+		}
+	}()
+
+	// the manager always answers 200 and reports the pull per worker
+	if resp.StatusCode != http.StatusOK {
+		snippet, err := readSnippet(resp)
+		if err != nil {
+			return fmt.Errorf("reading pre-warm response: %w", err)
+		}
+		return statusError(resp.StatusCode, snippet)
+	}
+
+	var report pullImagesReport
+	if err := json.NewDecoder(resp.Body).Decode(&report); err != nil {
+		return fmt.Errorf("decoding pull report: %w", err)
+	}
+
+	for _, res := range report.Results {
+		if !res.OK {
+			return fmt.Errorf("worker %s: %s", res.Worker, res.Error)
+		}
+	}
+	return nil
 }
