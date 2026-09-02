@@ -7,10 +7,10 @@ import (
 )
 
 type TaskRepository interface {
-	Save(task *domain.Task) error
-	Get(id string) (*domain.Task, error)
-	UpdateStatus(id string, status domain.TaskStatus) error
-	SaveResult(id string, result *domain.Result) error
+	SaveTask(task *domain.Task) error
+	GetTask(id string) (*domain.Task, error)
+	UpdateTaskStatus(id string, status domain.TaskStatus) error
+	SaveTaskResult(id string, result *domain.Result) error
 }
 
 type TaskService interface {

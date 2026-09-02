@@ -10,7 +10,7 @@ import (
 	"github.com/belyaevedu/remote-code-service/internal/domain"
 )
 
-func (r *Repository) Save(task *domain.Task) error {
+func (r *Repository) SaveTask(task *domain.Task) error {
 	_, err := r.pool.Exec(context.Background(),
 		`INSERT INTO tasks (id, user_id, status, translator) VALUES ($1, $2, $3, $4)`,
 		task.ID, task.UserID, task.Status, task.Translator,
@@ -18,7 +18,7 @@ func (r *Repository) Save(task *domain.Task) error {
 	return err
 }
 
-func (r *Repository) Get(id string) (*domain.Task, error) {
+func (r *Repository) GetTask(id string) (*domain.Task, error) {
 	var (
 		userID     string
 		status     domain.TaskStatus
@@ -52,7 +52,7 @@ func (r *Repository) Get(id string) (*domain.Task, error) {
 	return task, nil
 }
 
-func (r *Repository) UpdateStatus(id string, status domain.TaskStatus) error {
+func (r *Repository) UpdateTaskStatus(id string, status domain.TaskStatus) error {
 	tag, err := r.pool.Exec(context.Background(),
 		`UPDATE tasks SET status = $1 WHERE id = $2`, status, id,
 	)
@@ -65,7 +65,7 @@ func (r *Repository) UpdateStatus(id string, status domain.TaskStatus) error {
 	return nil
 }
 
-func (r *Repository) SaveResult(id string, result *domain.Result) error {
+func (r *Repository) SaveTaskResult(id string, result *domain.Result) error {
 	if result == nil {
 		result = &domain.Result{}
 	}
