@@ -44,7 +44,7 @@ func main() {
 
 	executor := service.NewPhilharmonicExecutor(philCfg)
 
-	// pull the sandbox image on every worker before the queue opens
+	// pulling the sandbox image on every worker before starting to process
 	prewarmCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	if err := executor.PreWarm(prewarmCtx); err != nil {
 		log.Printf("processor: sandbox pre-warm failed: %v (continuing)", err)
