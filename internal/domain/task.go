@@ -9,6 +9,7 @@ var (
 	ErrAccessDenied          = errors.New("access denied")
 	ErrUnsupportedTranslator = errors.New("unsupported translator")
 	ErrExecutionTimeout      = errors.New("execution timed out")
+	ErrInvalidSubmission     = errors.New("invalid submission")
 )
 
 type TaskStatus string
@@ -23,10 +24,17 @@ type Result struct {
 }
 
 type Task struct {
-	ID     string
-	UserID string
-	Status TaskStatus
-	Result *Result
+	ID         string
+	UserID     string
+	Status     TaskStatus
+	Translator string
+	Result     *Result
+}
+
+// pre-creation api payload
+type Submission struct {
+	Translator string
+	Code       string
 }
 
 type TaskMessage struct {
