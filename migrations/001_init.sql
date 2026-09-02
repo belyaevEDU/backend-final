@@ -11,7 +11,7 @@ CREATE TABLE tasks (
     id          uuid PRIMARY KEY,
     user_id     uuid NOT NULL REFERENCES users (id),
     status      task_status NOT NULL DEFAULT 'in_progress',
-    translator  text,
+    translator  text NOT NULL,
     result      jsonb,
     created_at  timestamptz NOT NULL DEFAULT now(),
     finished_at timestamptz
