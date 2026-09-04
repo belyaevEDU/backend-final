@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/belyaevedu/remote-code-service/internal/config"
+	"github.com/belyaevedu/remote-code-service/internal/controller"
 	"github.com/belyaevedu/remote-code-service/internal/domain"
 	"github.com/belyaevedu/remote-code-service/internal/repository/postgres"
 	"github.com/belyaevedu/remote-code-service/internal/repository/queue"
@@ -28,6 +29,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("invalid philharmonic config: %v", err)
 	}
+	metricsCfg, err := config.LoadMetricsConfig()
+	if err != nil {
+		log.Fatalf("invalid metrics config: %v", err)
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -42,18 +47,27 @@ func main() {
 		log.Fatalf("waiting for schema: %v", err)
 	}
 
-	executor := service.NewPhilharmonicExecutor(philCfg)
+	phrmExecutor := service.NewPhilharmonicExecutor(philCfg)
 
 	// pulling the sandbox image on every worker before starting to process
 	prewarmCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
-	if err := executor.PreWarm(prewarmCtx); err != nil {
+	if err := phrmExecutor.PreWarm(prewarmCtx); err != nil {
 		log.Printf("processor: sandbox pre-warm failed: %v (continuing)", err)
 	} else {
 		log.Printf("processor: sandbox image %q pre-warmed on workers", philCfg.SandboxImage)
 	}
 	cancel()
 
+	executor := service.NewInstrumentedExecutor(phrmExecutor)
+
 	consumer := queue.NewConsumer(queueCfg)
+
+	metricsServer := controller.NewMetricsServer(metricsCfg.Addr, metricsCfg.ShutdownTimeout)
+	go func() {
+		if err := metricsServer.Start(ctx); err != nil {
+			log.Fatalf("metrics server exited with error: %v", err)
+		}
+	}()
 
 	handle := func(ctx context.Context, msg domain.TaskMessage) error {
 		result, err := executor.Execute(ctx, msg)
