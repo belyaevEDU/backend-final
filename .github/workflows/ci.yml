@@ -121,7 +121,11 @@ jobs:
       - name: debug logs
         if: failure()
         run: |
-          tail -n 50 /tmp/server.log /tmp/processor.log /tmp/phrm-manager.log /tmp/phrm-worker.log
+          docker compose ps
+          docker compose logs --tail 30 postgres redis rabbitmq || true
+          for f in /tmp/server.log /tmp/processor.log /tmp/phrm-manager.log /tmp/phrm-worker.log; do
+            if [ -f "$f" ]; then echo "== $f =="; tail -n 50 "$f"; fi
+          done
 
       - name: teardown
         if: always()
