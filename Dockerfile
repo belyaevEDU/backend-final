@@ -22,6 +22,7 @@ COPY --from=builder /out/server /app/server
 COPY --from=builder /src/migrations /app/migrations
 
 EXPOSE 8000
+EXPOSE 9100
 
 USER 65532:65532
 

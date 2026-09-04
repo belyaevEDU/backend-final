@@ -17,6 +17,8 @@ FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c
 
 WORKDIR /app
 
+EXPOSE 9100
+
 COPY --from=builder /out/processor /app/processor
 
 ENTRYPOINT ["/app/processor"]
