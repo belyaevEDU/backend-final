@@ -105,13 +105,8 @@ jobs:
           /tmp/processor > /tmp/processor.log 2>&1 &
           # any HTTP answer (even 401/404) means the server is serving.
           # it only serves after the migrations are done
-          for i in $(seq 1 30); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' \
-              localhost:8000/status/00000000-0000-0000-0000-000000000000)
-            [ "$code" != "000" ] && break
-            sleep 1
-          done
-          [ "$code" != "000" ]
+          curl -s -o /dev/null --retry 30 --retry-delay 1 --retry-all-errors \
+            localhost:8000/status/00000000-0000-0000-0000-000000000000
 
       - name: pytest
         run: |
