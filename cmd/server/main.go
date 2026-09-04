@@ -47,6 +47,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("invalid queue config: %v", err)
 	}
+	metricsCfg, err := config.LoadMetricsConfig()
+	if err != nil {
+		log.Fatalf("invalid metrics config: %v", err)
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -86,6 +90,13 @@ func main() {
 
 	router := controller.NewRouter(taskHandler, userHandler, userService)
 	server := controller.NewApi(appCfg.HTTPAddr, router, appCfg.ShutdownTimeout)
+
+	metricsServer := controller.NewMetricsServer(metricsCfg.Addr, metricsCfg.ShutdownTimeout)
+	go func() {
+		if err := metricsServer.Start(ctx); err != nil {
+			log.Fatalf("metrics server exited with error: %v", err)
+		}
+	}()
 
 	if err := server.Start(ctx); err != nil {
 		log.Fatalf("server exited with error: %v", err)
