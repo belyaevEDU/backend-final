@@ -5,9 +5,6 @@ on:
     branches: [main]
   pull_request:
 
-env:
-  SANDBOX_IMAGE: ghcr.io/${{ github.repository }}/sandbox
-
 jobs:
   lint:
     name: vet & lint
@@ -28,7 +25,9 @@ jobs:
           version: v2.11.3
 
   publish-sandbox:
-    name: publish sandbox image
+    name: publish sandbox image to ghcr
+    # push to main only basically
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,23 +37,26 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      - id: repo
+        name: lowercase repo name by ghcr requirement
+        run: echo "name=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
       - name: login to GHCR
-        if: github.event_name == 'push'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: build (and push on push events)
+      - name: build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           file: sandbox/Dockerfile
-          push: ${{ github.event_name == 'push' }}
+          push: true
           tags: |
-            ${{ env.SANDBOX_IMAGE }}:latest
-            ${{ env.SANDBOX_IMAGE }}:${{ github.sha }}
+            ghcr.io/${{ steps.repo.outputs.name }}/sandbox:latest
+            ghcr.io/${{ steps.repo.outputs.name }}/sandbox:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
