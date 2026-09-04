@@ -84,7 +84,7 @@ jobs:
 
       - name: start philharmonic manager + worker on the runner
         run: |
-          git clone --depth 1 --branch v0.1.0 https://github.com/belyaevedu/philharmonic /tmp/philharmonic
+          git clone --depth 1 --branch v0.1.1 https://github.com/belyaevedu/philharmonic /tmp/philharmonic
           (cd /tmp/philharmonic && CGO_ENABLED=0 go build -o /tmp/phrm .)
 
           /tmp/phrm manager --host 127.0.0.1 --port 5555 --workers 127.0.0.1:5556 > /tmp/phrm-manager.log 2>&1 &
