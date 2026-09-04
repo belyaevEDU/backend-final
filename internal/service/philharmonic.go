@@ -109,13 +109,48 @@ func (e *PhilharmonicExecutor) Execute(ctx context.Context, msg domain.TaskMessa
 
 // mirrors the philharmonic task.Task JSON field names
 type submitTask struct {
-	Name          string   `json:"Name"`
-	Image         string   `json:"Image"`
-	Env           []string `json:"Env,omitempty"`
-	RestartPolicy string   `json:"RestartPolicy"`
-	Timeout       int64    `json:"Timeout"` // seconds
-	Cpu           float64  `json:"Cpu"`
-	Memory        int64    `json:"Memory"` // bytes
+	Name          string          `json:"Name"`
+	Image         string          `json:"Image"`
+	Env           []string        `json:"Env,omitempty"`
+	RestartPolicy string          `json:"RestartPolicy"`
+	Timeout       int64           `json:"Timeout"` // seconds
+	Cpu           float64         `json:"Cpu"`
+	Memory        int64           `json:"Memory"` // bytes
+	Security      *submitSecurity `json:"Security"`
+}
+
+// mirrors the philharmonic task.Security
+type submitSecurity struct {
+	User            string         `json:"User"`
+	CapDrop         []string       `json:"CapDrop,omitempty"`
+	Tmpfs           []string       `json:"Tmpfs,omitempty"`
+	ReadOnlyRootfs  bool           `json:"ReadOnlyRootfs"`
+	NoNewPrivileges bool           `json:"NoNewPrivileges"`
+	PidsLimit       int64          `json:"PidsLimit,omitempty"`
+	Ulimits         []submitUlimit `json:"Ulimits,omitempty"`
+}
+
+type submitUlimit struct {
+	Name string `json:"Name"`
+	Soft int64  `json:"Soft"`
+	Hard int64  `json:"Hard"`
+}
+
+func defaultSandboxSecurity() *submitSecurity {
+	return &submitSecurity{
+		User:            "65532:65532",
+		CapDrop:         []string{"ALL"},
+		ReadOnlyRootfs:  true,
+		Tmpfs:           []string{"/tmp:rw,nosuid,nodev,size=64m,mode=1777"},
+		NoNewPrivileges: true,
+		PidsLimit:       128,
+		Ulimits: []submitUlimit{
+			// fd exhaustion guard
+			{Name: "nofile", Soft: 256, Hard: 256},
+			// no core dumps
+			{Name: "core", Soft: 0, Hard: 0},
+		},
+	}
 }
 
 type submitEvent struct {
@@ -138,6 +173,8 @@ func (e *PhilharmonicExecutor) submit(ctx context.Context, name string, msg doma
 
 			Cpu:    e.cfg.Cpu,
 			Memory: e.cfg.Memory,
+
+			Security: defaultSandboxSecurity(),
 		},
 	})
 	if err != nil {
