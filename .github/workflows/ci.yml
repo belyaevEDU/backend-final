@@ -102,7 +102,7 @@ jobs:
           go build -o /tmp/server ./cmd/server
           go build -o /tmp/processor ./cmd/processor
           /tmp/server > /tmp/server.log 2>&1 &
-          /tmp/processor > /tmp/processor.log 2>&1 &
+          METRICS_ADDR=:9101 /tmp/processor > /tmp/processor.log 2>&1 &
           # any HTTP answer (even 401/404) means the server is serving.
           # it only serves after the migrations are done
           curl -s -o /dev/null --retry 30 --retry-delay 1 --retry-all-errors \
