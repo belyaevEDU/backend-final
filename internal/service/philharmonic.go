@@ -109,25 +109,25 @@ func (e *PhilharmonicExecutor) Execute(ctx context.Context, msg domain.TaskMessa
 
 // mirrors the philharmonic task.Task JSON field names
 type submitTask struct {
-	Name          string          `json:"Name"`
-	Image         string          `json:"Image"`
-	Env           []string        `json:"Env,omitempty"`
-	RestartPolicy string          `json:"RestartPolicy"`
-	Timeout       int64           `json:"Timeout"` // seconds
-	Cpu           float64         `json:"Cpu"`
-	Memory        int64           `json:"Memory"` // bytes
-	Security      *submitSecurity `json:"Security"`
+	Name          string
+	Image         string
+	Env           []string
+	RestartPolicy string
+	Timeout       int64 // seconds
+	Cpu           float64
+	Memory        int64 // bytes
+	Security      *submitSecurity
 }
 
 // mirrors the philharmonic task.Security
 type submitSecurity struct {
-	User            string         `json:"User"`
-	CapDrop         []string       `json:"CapDrop,omitempty"`
-	Tmpfs           []string       `json:"Tmpfs,omitempty"`
-	ReadOnlyRootfs  bool           `json:"ReadOnlyRootfs"`
-	NoNewPrivileges bool           `json:"NoNewPrivileges"`
-	PidsLimit       int64          `json:"PidsLimit,omitempty"`
-	Ulimits         []submitUlimit `json:"Ulimits,omitempty"`
+	User            string
+	CapDrop         []string
+	Tmpfs           []string
+	ReadOnlyRootfs  bool
+	NoNewPrivileges bool
+	PidsLimit       int64
+	Ulimits         []submitUlimit
 }
 
 type submitUlimit struct {
